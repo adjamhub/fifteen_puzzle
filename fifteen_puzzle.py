@@ -102,11 +102,13 @@ class FifteenPuzzle(wx.Frame):
 
 
 # ----------------------------------------
-
-if __name__ == "__main__":
+def main():
     app = wx.App()
-
     window = FifteenPuzzle()
     window.Show()
-
     app.MainLoop()
+    return
+
+
+if __name__ == "__main__":
+    main()
