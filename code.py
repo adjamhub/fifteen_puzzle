@@ -82,9 +82,16 @@ class FifteenPuzzle(wx.Frame):
 
         if check and self.checkWin():
             dial = wx.MessageDialog(
-                None, "Hai Vinto!", "EVVIVA!", wx.OK | wx.ICON_EXCLAMATION
+                None,
+                "Hai Vinto!",
+                "EVVIVA!",
+                wx.OK | wx.CANCEL | wx.ICON_INFORMATION,
             )
-            dial.ShowModal()
+            dial.SetOKCancelLabels("Chiudi", "Ricomincia")
+            if dial.ShowModal() == wx.ID_OK:
+                self.Close()
+                return
+            self.shuffle()
         return
 
     def checkWin(self):
