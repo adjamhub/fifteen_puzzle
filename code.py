@@ -6,9 +6,20 @@ import random
 import wx
 
 
+def posToId(row, col):
+    return (row - 1) * 4 + col
+
+
+def idToPos(id):
+    (row, col) = (id + 3) // 4, id % 4
+    if col == 0:
+        col = 4
+    return row, col
+
+
 class FifteenPuzzle(wx.Frame):
     def __init__(self):
-        super().__init__(None, title="15 puzzle", size=(450, 450))
+        super().__init__(None, title="fifteen puzzle", size=(450, 450))
 
         panel = wx.Panel(self)
 
@@ -18,18 +29,15 @@ class FifteenPuzzle(wx.Frame):
 
         grid = wx.GridSizer(rows=4, cols=4, vgap=5, hgap=5)
         self.buttons = {}
-        for n in range(1, 16):
+        for n in range(1, 17):
             btn = wx.Button(panel, label=str(n), size=(100, 100), id=n)
-            self.buttons[n] = btn
-            grid.Add(btn, proportion=0, flag=wx.EXPAND, border=0)
             btn.Bind(wx.EVT_BUTTON, self.play)
+            grid.Add(btn, proportion=0, flag=wx.EXPAND, border=0)
+            self.buttons[n] = btn
 
         # il 16esimo pulsante c'è... ma NON si vede ;)
-        btn = wx.Button(panel, label=str(16), size=(100, 100), id=16)
         btn.Hide()
-        self.buttons[16] = btn
-        grid.Add(btn, proportion=0, flag=wx.EXPAND, border=0)
-        btn.Bind(wx.EVT_BUTTON, self.play)
+        self.hiddenButtonPosition = (4, 4)
 
         panel.SetSizer(grid)
         self.Centre()
@@ -47,38 +55,42 @@ class FifteenPuzzle(wx.Frame):
         if not btn.IsShown():
             return
 
-        moves = {
-            1: (2, 5),
-            2: (1, 3, 6),
-            3: (2, 4, 7),
-            4: (3, 8),
-            5: (1, 6, 9),
-            6: (2, 5, 7, 10),
-            7: (3, 6, 8, 11),
-            8: (4, 7, 12),
-            9: (5, 10, 13),
-            10: (6, 9, 11, 14),
-            11: (7, 10, 12, 15),
-            12: (8, 11, 16),
-            13: (9, 14),
-            14: (10, 13, 15),
-            15: (11, 14, 16),
-            16: (12, 15),
-        }
-
-        second = -1
-        for n in moves[btn_id]:
-            if not self.buttons[n].IsShown():
-                second = n
-                break
-
-        if second == -1:
+        # trovo la posizione del pulsante cliccato, in base al suo ID
+        (clickedButtonRow, clickedButtonCol) = idToPos(btn_id)
+        hiddenButtonRow, hiddenButtonCol = self.hiddenButtonPosition
+        if (
+            clickedButtonRow != hiddenButtonRow
+            and clickedButtonCol != hiddenButtonCol
+        ):
             return
 
-        secondButton = self.buttons[second]
-        secondButton.SetLabel(btn.GetLabel())
+        hiddenButtonId = posToId(hiddenButtonRow, hiddenButtonCol)
+        hiddenButton = self.buttons[hiddenButtonId]
+        hiddenButton.Show()
         btn.Hide()
-        secondButton.Show()
+
+        if clickedButtonRow == hiddenButtonRow:
+            direction = 1
+            if hiddenButtonCol > clickedButtonCol:
+                direction = -1
+            for col in range(hiddenButtonCol, clickedButtonCol, direction):
+                buttonR = self.buttons[posToId(clickedButtonRow, col)]
+                buttonL = self.buttons[
+                    posToId(clickedButtonRow, col + direction)
+                ]
+                buttonR.SetLabel(buttonL.GetLabel())
+        else:
+            direction = 1
+            if hiddenButtonRow > clickedButtonRow:
+                direction = -1
+            for row in range(hiddenButtonRow, clickedButtonRow, direction):
+                buttonR = self.buttons[posToId(row, clickedButtonCol)]
+                buttonL = self.buttons[
+                    posToId(row + direction, clickedButtonCol)
+                ]
+                buttonR.SetLabel(buttonL.GetLabel())
+
+        self.hiddenButtonPosition = clickedButtonRow, clickedButtonCol
 
         if check and self.checkWin():
             dial = wx.MessageDialog(
