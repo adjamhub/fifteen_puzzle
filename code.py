@@ -109,7 +109,7 @@ class FifteenPuzzle(wx.Frame):
 
 
 # ----------------------------------------
-def main():
+def run():
     app = wx.App()
     window = FifteenPuzzle()
     window.Show()
@@ -118,4 +118,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run()
