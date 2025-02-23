@@ -23,7 +23,7 @@ class FifteenPuzzle(wx.Frame):
 
         panel = wx.Panel(self)
 
-        # un font appropriato
+        # right font for the game
         font = wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.BOLD)
         panel.SetFont(font)
 
@@ -35,14 +35,14 @@ class FifteenPuzzle(wx.Frame):
             grid.Add(btn, proportion=0, flag=wx.EXPAND, border=0)
             self.buttons[n] = btn
 
-        # il 16esimo pulsante c'è... ma NON si vede ;)
+        # The sixteen button is there... but you cannot see it!
         btn.Hide()
         self.hiddenButtonPosition = (4, 4)
 
         panel.SetSizer(grid)
         self.Centre()
 
-        # mischia...
+        # shuffle before starting.
         self.shuffle()
 
     def play(self, event):
